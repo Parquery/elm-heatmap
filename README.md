@@ -1,8 +1,6 @@
 # Elm Heatmap
 
-<p align="center">
-  <img src="https://github.com/Parquery/elm-heatmap/screenshots/ex1.jpg?raw=true" alt="screenshot"/>
-</p>
+![Example 1](screenshots/ex1.jpg)
 
 HTML-based [heatmap](https://en.wikipedia.org/wiki/Heat_map) in pure Elm.
 
@@ -23,20 +21,20 @@ You can configure:
 * whether cells show a message on mouse hover and
 * whether cells get darker when hovered.
 
-##Live Demo
+## Live Demo
 See https://Parquery.github.io/elm-heatmap/
 
 ## Example
 You can run the example from the Demo above on your machine by cloning the repository, running `elm-reactor` at the 
 root and navigating into `examples/`.
 
-##Installation
+## Installation
 To install the package, run 
 
 ```elm-package install Parquery/elm-heatmap```
 
 
-##Versioning
+## Versioning
 We follow [Semantic Versioning](https://semver.org/spec/v1.0.0.html). The version X.Y.Z indicates:
 
     X is the major version (backward-incompatible),
@@ -44,7 +42,7 @@ We follow [Semantic Versioning](https://semver.org/spec/v1.0.0.html). The versio
     Z is the patch version (backward-compatible bug fix).
 
 
-##Development
+## Development
 Contributions to the package are welcome. To contribute, you need to:
 
 1) fork the repository on GitHub, 
