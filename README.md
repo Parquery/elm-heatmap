@@ -22,7 +22,7 @@ You can configure:
 * whether cells get darker when hovered.
 
 ## Live Demo
-See https://Parquery.github.io/elm-heatmap/
+See https://parquery.github.io/elm-heatmap/Basic.html
 
 ## Example
 You can run the example from the Demo above on your machine by cloning the repository, running `elm-reactor` at the 
