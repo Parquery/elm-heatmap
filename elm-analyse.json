@@ -1,0 +1,6 @@
+{
+  "checks": {
+    "SingleFieldRecord": false,
+    "CoreArrayUsage": false
+  }
+}
