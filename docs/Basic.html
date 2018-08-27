@@ -8614,9 +8614,10 @@ var _Parquery$elm_heatmap$Heatmap$OnHover = function (a) {
 var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 	function (cellMatrix, _p19, colorFunction, state) {
 		var _p20 = _p19;
-		var _p29 = _p20._0.rowLabels;
-		var _p28 = _p20._0.padding;
-		var _p27 = _p20._0.message;
+		var _p30 = _p20._0.rowLabels;
+		var _p29 = _p20._0.padding;
+		var _p28 = _p20._0.message;
+		var _p27 = _p20._0.darken;
 		var _p26 = _p20._0.columnLabels;
 		var xLabel = function (text) {
 			return A2(
@@ -8673,7 +8674,7 @@ var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 						var _p21 = state.selected;
 						if (_p21.ctor === 'Just') {
 							var _p22 = _p21._0;
-							return (_elm_lang$core$Native_Utils.eq(row, _p22.row) && (_elm_lang$core$Native_Utils.eq(col, _p22.column) && _p20._0.darken)) ? A2(_Parquery$elm_heatmap$Heatmap$darkenColor, 0.7, color) : color;
+							return (_elm_lang$core$Native_Utils.eq(row, _p22.row) && (_elm_lang$core$Native_Utils.eq(col, _p22.column) && _p27)) ? A2(_Parquery$elm_heatmap$Heatmap$darkenColor, 0.7, color) : color;
 						} else {
 							return color;
 						}
@@ -8722,7 +8723,7 @@ var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 			_elm_lang$core$List$maximum(
 				A2(_elm_lang$core$List$map, _elm_lang$core$List$length, cellMatrix)));
 		var cellWid = function () {
-			var availableWidth = _elm_lang$core$Native_Utils.eq(_p29, _elm_lang$core$Maybe$Nothing) ? 100 : 90;
+			var availableWidth = _elm_lang$core$Native_Utils.eq(_p30, _elm_lang$core$Maybe$Nothing) ? 100 : 90;
 			return function (w) {
 				return A2(_elm_lang$core$Basics_ops['++'], w, '%');
 			}(
@@ -8730,9 +8731,9 @@ var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 					availableWidth / _elm_lang$core$Basics$toFloat(maxRowLength)));
 		}();
 		var paddingCell = function () {
-			var toolTip = _p27 ? {
+			var toolTip = _p28 ? {
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$title(_p28.message),
+				_0: _elm_lang$html$Html_Attributes$title(_p29.message),
 				_1: {ctor: '[]'}
 			} : {ctor: '[]'};
 			return A2(
@@ -8747,7 +8748,7 @@ var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'background-color',
-									_1: _Parquery$elm_heatmap$Heatmap$colorToString(_p28.color)
+									_1: _Parquery$elm_heatmap$Heatmap$colorToString(_p29.color)
 								},
 								_1: {
 									ctor: '::',
@@ -8770,7 +8771,18 @@ var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 		}();
 		var cellAttributes = F3(
 			function (row, col, cell) {
-				var toolTip = _p27 ? {
+				var responsive = _p27 ? {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onMouseOver(
+						_Parquery$elm_heatmap$Heatmap$OnHover(
+							{cell: cell, row: row, column: col})),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onMouseLeave(_Parquery$elm_heatmap$Heatmap$OnLeave),
+						_1: {ctor: '[]'}
+					}
+				} : {ctor: '[]'};
+				var toolTip = _p28 ? {
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$title(cell.message),
 					_1: {ctor: '[]'}
@@ -8797,24 +8809,14 @@ var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 									}
 								}
 							}),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onMouseOver(
-								_Parquery$elm_heatmap$Heatmap$OnHover(
-									{cell: cell, row: row, column: col})),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onMouseLeave(_Parquery$elm_heatmap$Heatmap$OnLeave),
-								_1: {ctor: '[]'}
-							}
-						}
+						_1: {ctor: '[]'}
 					},
-					toolTip);
+					A2(_elm_lang$core$Basics_ops['++'], toolTip, responsive));
 			});
 		var toTableRow = F2(
 			function (rowIndex, cellList) {
 				var prepended = function () {
-					var _p23 = _p29;
+					var _p23 = _p30;
 					if (_p23.ctor === 'Just') {
 						var labelText = A2(
 							_elm_lang$core$Maybe$withDefault,
@@ -8933,7 +8935,7 @@ var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 				});
 		};
 		var firstRowLabels = function (labels) {
-			var labelList = (!_elm_lang$core$Native_Utils.eq(_p29, _elm_lang$core$Maybe$Nothing)) ? {ctor: '::', _0: '', _1: labels} : labels;
+			var labelList = (!_elm_lang$core$Native_Utils.eq(_p30, _elm_lang$core$Maybe$Nothing)) ? {ctor: '::', _0: '', _1: labels} : labels;
 			return A2(
 				_elm_lang$html$Html$tr,
 				{
@@ -9016,17 +9018,17 @@ var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 			});
 	});
 var _Parquery$elm_heatmap$Heatmap$view = F3(
-	function (_p30, state, data) {
-		var _p31 = _p30;
+	function (_p31, state, data) {
+		var _p32 = _p31;
 		var cellMatrix = A2(
 			_elm_lang$core$List$map,
-			_elm_lang$core$List$map(_p31._0.toCell),
+			_elm_lang$core$List$map(_p32._0.toCell),
 			data);
-		var _p32 = function () {
-			var _p33 = _p31._0.range;
-			if (_p33.ctor === 'Just') {
-				var _p34 = _p33._0;
-				return {ctor: '_Tuple2', _0: _p34.lower, _1: _p34.upper};
+		var _p33 = function () {
+			var _p34 = _p32._0.range;
+			if (_p34.ctor === 'Just') {
+				var _p35 = _p34._0;
+				return {ctor: '_Tuple2', _0: _p35.lower, _1: _p35.upper};
 			} else {
 				return function (list) {
 					return {
@@ -9056,9 +9058,9 @@ var _Parquery$elm_heatmap$Heatmap$view = F3(
 							cellMatrix)));
 			}
 		}();
-		var minValue = _p32._0;
-		var maxValue = _p32._1;
-		var colorFunction = A3(_Parquery$elm_heatmap$Heatmap$colorScale, _p31._0.colorScheme, minValue, maxValue);
+		var minValue = _p33._0;
+		var maxValue = _p33._1;
+		var colorFunction = A3(_Parquery$elm_heatmap$Heatmap$colorScale, _p32._0.colorScheme, minValue, maxValue);
 		var maxRowLength = A2(
 			_elm_lang$core$Maybe$withDefault,
 			1,
@@ -9084,7 +9086,7 @@ var _Parquery$elm_heatmap$Heatmap$view = F3(
 			_elm_lang$html$Html$div,
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$id(_p31._0.id),
+				_0: _elm_lang$html$Html_Attributes$id(_p32._0.id),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$style(
@@ -9102,13 +9104,13 @@ var _Parquery$elm_heatmap$Heatmap$view = F3(
 			},
 			{
 				ctor: '::',
-				_0: A4(_Parquery$elm_heatmap$Heatmap$drawCells, paddedCellMatrix, _p31, colorFunction, state),
+				_0: A4(_Parquery$elm_heatmap$Heatmap$drawCells, paddedCellMatrix, _p32, colorFunction, state),
 				_1: {ctor: '[]'}
 			});
 	});
 var _Parquery$elm_heatmap$Heatmap$viewSparse = F3(
-	function (_p35, state, data) {
-		var _p36 = _p35;
+	function (_p36, state, data) {
+		var _p37 = _p36;
 		var dataZeroBased = function () {
 			var colOffset = A2(
 				_elm_lang$core$Maybe$withDefault,
@@ -9143,15 +9145,15 @@ var _Parquery$elm_heatmap$Heatmap$viewSparse = F3(
 				return {
 					row: dataWithPos.row,
 					column: dataWithPos.column,
-					cell: _p36._0.toCell(dataWithPos.data)
+					cell: _p37._0.toCell(dataWithPos.data)
 				};
 			},
 			dataZeroBased);
-		var _p37 = function () {
-			var _p38 = _p36._0.range;
-			if (_p38.ctor === 'Just') {
-				var _p39 = _p38._0;
-				return {ctor: '_Tuple2', _0: _p39.lower, _1: _p39.upper};
+		var _p38 = function () {
+			var _p39 = _p37._0.range;
+			if (_p39.ctor === 'Just') {
+				var _p40 = _p39._0;
+				return {ctor: '_Tuple2', _0: _p40.lower, _1: _p40.upper};
 			} else {
 				return function (list) {
 					return {
@@ -9179,9 +9181,9 @@ var _Parquery$elm_heatmap$Heatmap$viewSparse = F3(
 							positionedCellList)));
 			}
 		}();
-		var minValue = _p37._0;
-		var maxValue = _p37._1;
-		var colorFunction = A3(_Parquery$elm_heatmap$Heatmap$colorScale, _p36._0.colorScheme, minValue, maxValue);
+		var minValue = _p38._0;
+		var maxValue = _p38._1;
+		var colorFunction = A3(_Parquery$elm_heatmap$Heatmap$colorScale, _p37._0.colorScheme, minValue, maxValue);
 		var maxRowLength = A2(
 			_elm_lang$core$Maybe$withDefault,
 			1,
@@ -9219,7 +9221,7 @@ var _Parquery$elm_heatmap$Heatmap$viewSparse = F3(
 					return A2(
 						_elm_lang$core$List$indexedMap,
 						F2(
-							function (column, _p40) {
+							function (column, _p41) {
 								return A2(
 									_elm_lang$core$Dict$get,
 									{ctor: '_Tuple2', _0: row, _1: column},
@@ -9237,7 +9239,7 @@ var _Parquery$elm_heatmap$Heatmap$viewSparse = F3(
 			_elm_lang$html$Html$div,
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$id(_p36._0.id),
+				_0: _elm_lang$html$Html_Attributes$id(_p37._0.id),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$style(
@@ -9255,7 +9257,7 @@ var _Parquery$elm_heatmap$Heatmap$viewSparse = F3(
 			},
 			{
 				ctor: '::',
-				_0: A4(_Parquery$elm_heatmap$Heatmap$drawCells, paddedCellMatrix, _p36, colorFunction, state),
+				_0: A4(_Parquery$elm_heatmap$Heatmap$drawCells, paddedCellMatrix, _p37, colorFunction, state),
 				_1: {ctor: '[]'}
 			});
 	});
