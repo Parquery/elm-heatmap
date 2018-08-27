@@ -641,16 +641,23 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, padding
                         [ Html.Attributes.title cell.message ]
                     else
                         []
+
+                responsive =
+                    if darken then
+                        [ Html.Events.onMouseOver (OnHover { cell = cell, row = row, column = col })
+                        , Html.Events.onMouseLeave OnLeave
+                        ]
+                    else
+                        []
             in
             [ Html.Attributes.style
                 [ ( "background-color", fillColor row col cell )
                 , ( "width", cellWid )
                 , ( "border", "2px solid black" )
                 ]
-            , Html.Events.onMouseOver (OnHover { cell = cell, row = row, column = col })
-            , Html.Events.onMouseLeave OnLeave
             ]
                 ++ toolTip
+                ++ responsive
 
         xLabel text =
             Html.td
