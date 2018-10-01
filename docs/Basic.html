@@ -8447,7 +8447,7 @@ var _Parquery$elm_heatmap$Internal_Color$recursiveLEBinSrc = F5(
 							}
 						}
 					} else {
-						return (_elm_lang$core$Native_Utils.cmp(searchValue, _p2) > 0) ? -1 : mid;
+						return (_elm_lang$core$Native_Utils.cmp(searchValue, _p2) > 0) ? (mid + 1) : mid;
 					}
 				}
 			}
@@ -8464,7 +8464,7 @@ var _Parquery$elm_heatmap$Internal_Color$lessEqualBinSearch = F2(
 			_elm_lang$core$Maybe$withDefault,
 			first,
 			A2(_elm_lang$core$Array$get, len - 1, listOfNumbers));
-		return (_elm_lang$core$Native_Utils.eq(len, 0) || _elm_lang$core$Basics$isNaN(searchValue)) ? -1 : ((_elm_lang$core$Native_Utils.cmp(searchValue, last) > 0) ? len : ((_elm_lang$core$Native_Utils.cmp(searchValue, first) < 1) ? 0 : A5(_Parquery$elm_heatmap$Internal_Color$recursiveLEBinSrc, listOfNumbers, searchValue, 0, len - 1, len)));
+		return _elm_lang$core$Basics$isNaN(searchValue) ? -1 : (_elm_lang$core$Native_Utils.eq(len, 0) ? -2 : ((_elm_lang$core$Native_Utils.cmp(searchValue, last) > 0) ? (len - 1) : ((_elm_lang$core$Native_Utils.cmp(searchValue, first) < 1) ? 0 : A5(_Parquery$elm_heatmap$Internal_Color$recursiveLEBinSrc, listOfNumbers, searchValue, 0, len - 1, len))));
 	});
 var _Parquery$elm_heatmap$Internal_Color$darken = F2(
 	function (offset, cl) {
@@ -8510,11 +8510,19 @@ var _Parquery$elm_heatmap$Internal_Color$get = F2(
 		} else {
 			var floats = A2(_elm_lang$core$Array$map, _elm_lang$core$Tuple$first, colorScheme.$float);
 			var index = A2(_Parquery$elm_heatmap$Internal_Color$lessEqualBinSearch, floats, cellValue);
-			return _elm_lang$core$Tuple$second(
-				A2(
-					_elm_lang$core$Maybe$withDefault,
-					{ctor: '_Tuple2', _0: 0, _1: colorScheme.nan},
-					A2(_elm_lang$core$Array$get, index, colorScheme.$float)));
+			var _p3 = index;
+			switch (_p3) {
+				case -2:
+					return colorScheme.empty;
+				case -1:
+					return colorScheme.nan;
+				default:
+					return _elm_lang$core$Tuple$second(
+						A2(
+							_elm_lang$core$Maybe$withDefault,
+							{ctor: '_Tuple2', _0: 0, _1: colorScheme.empty},
+							A2(_elm_lang$core$Array$get, index, colorScheme.$float)));
+			}
 		}
 	});
 var _Parquery$elm_heatmap$Internal_Color$Scheme = F3(
@@ -8729,41 +8737,35 @@ var _Parquery$elm_heatmap$Heatmap$drawCells = F4(
 				_elm_lang$core$Basics$toString(
 					availableWidth / _elm_lang$core$Basics$toFloat(maxRowLength)));
 		}();
-		var paddingCell = function () {
-			var toolTip = {ctor: '[]'};
-			return A2(
-				_elm_lang$html$Html$td,
-				A2(
-					_elm_lang$core$List$append,
+		var paddingCell = A2(
+			_elm_lang$html$Html$td,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$style(
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$style(
-							{
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'background-color',
+							_1: _Parquery$elm_heatmap$Internal_Color$toStr(_p14._0.colorScheme.empty)
+						},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'width', _1: cellWid},
+							_1: {
 								ctor: '::',
-								_0: {
-									ctor: '_Tuple2',
-									_0: 'background-color',
-									_1: _Parquery$elm_heatmap$Internal_Color$toStr(_p14._0.colorScheme.empty)
-								},
-								_1: {
-									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'width', _1: cellWid},
-									_1: {
-										ctor: '::',
-										_0: {ctor: '_Tuple2', _0: 'border', _1: '2px solid black'},
-										_1: {ctor: '[]'}
-									}
-								}
-							}),
-						_1: {ctor: '[]'}
-					},
-					toolTip),
-				{
-					ctor: '::',
-					_0: emptyCell,
-					_1: {ctor: '[]'}
-				});
-		}();
+								_0: {ctor: '_Tuple2', _0: 'border', _1: '2px solid black'},
+								_1: {ctor: '[]'}
+							}
+						}
+					}),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: emptyCell,
+				_1: {ctor: '[]'}
+			});
 		var cellAttributes = F3(
 			function (row, col, cell) {
 				var responsive = _p21 ? {
