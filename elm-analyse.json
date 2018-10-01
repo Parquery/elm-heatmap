@@ -1,6 +1,7 @@
 {
   "checks": {
     "SingleFieldRecord": false,
-    "CoreArrayUsage": false
+    "CoreArrayUsage": false,
+    "UseConsOverConcat": false
   }
 }

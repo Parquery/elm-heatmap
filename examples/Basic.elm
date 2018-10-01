@@ -7,6 +7,7 @@ import Heatmap
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Internal.Color
 
 
 {- Example Heatmap page. To run the example cd to the folder containing this module and run elm-reactor. -}
@@ -24,7 +25,7 @@ main =
 type alias Model =
     { cells : List (List Heatmap.Cell)
     , sparseCells : List (Heatmap.DataWithPosition Heatmap.Cell)
-    , colorScheme : Array.Array Color.Color
+    , colorScheme : Internal.Color.Scheme
     , text : String
     , state : Heatmap.State
     , sparseState : Heatmap.State
@@ -50,12 +51,16 @@ type Msg
     | ToggleHoverMessage
 
 
-sunrise : Array.Array Color.Color
+sunrise : Array.Array ( Float, Color.Color )
 sunrise =
     Array.fromList
-        [ Color.rgb 255 0 0
-        , Color.rgb 255 255 0
-        , Color.rgb 255 255 255
+        [ ( 0, Color.rgb 255 0 0 )
+        , ( 5, Color.rgb 255 125 0 )
+        , ( 8, Color.rgb 255 125 125 )
+        , ( 10, Color.rgb 255 200 125 )
+        , ( 13, Color.rgb 255 200 200 )
+        , ( 15, Color.rgb 255 255 200 )
+        , ( 20, Color.rgb 255 255 255 )
         ]
 
 
@@ -63,7 +68,7 @@ initialModel : Model
 initialModel =
     { cells = cellMatrix
     , sparseCells = sparseCellsList
-    , colorScheme = sunrise
+    , colorScheme = { float = sunrise, empty = Color.black, nan = Color.black }
     , text = "You're not hovering anything"
     , state = Heatmap.state
     , sparseState = Heatmap.state
@@ -193,7 +198,7 @@ view model =
                 , ( "height", "200px" )
                 ]
             ]
-            [ Html.map HeatmapSparseMsg <| Heatmap.viewSparse (heatmapConfigSparse model) model.sparseState model.sparseCells
+            [ Html.map HeatmapSparseMsg <| Heatmap.viewSparse (heatmapConfigSparse model) model.sparseState model.sparseCells (Just ( 7, 15 ))
             ]
         ]
 
@@ -246,7 +251,6 @@ heatmapConfig model =
         }
         |> withHover
         |> withDarken
-        |> Heatmap.withPadding ( Color.black, "no data available" )
         |> withColumnLabels
         |> withRowLabels
 
@@ -260,7 +264,6 @@ heatmapConfigSparse model =
         }
         |> Heatmap.withHoverMessage
         |> Heatmap.withDarken
-        |> Heatmap.withPadding ( Color.black, "no data available" )
 
 
 cellMatrix : List (List Heatmap.Cell)
@@ -286,41 +289,41 @@ sparseCellsList =
             , column = col
             , data =
                 { value = toFloat <| ((col + row) * 3) % 10
-                , message = "cell in row " ++ toString row ++ ", column " ++ toString col
+                , message = "cell in row " ++ toString (row + 1) ++ ", column " ++ toString (col + 1)
                 }
             }
     in
-    [ entry 0 0
-    , entry 0 1
-    , entry 0 2
-    , entry 0 4
-    , entry 0 8
-    , entry 0 12
-    , entry 1 0
-    , entry 1 4
-    , entry 1 8
+    [ entry 1 1
+    , entry 1 2
+    , entry 1 3
+    , entry 1 5
     , entry 1 9
-    , entry 1 11
-    , entry 1 12
-    , entry 2 0
+    , entry 1 13
     , entry 2 1
-    , entry 2 2
-    , entry 2 4
-    , entry 2 8
+    , entry 2 5
+    , entry 2 9
     , entry 2 10
     , entry 2 12
-    , entry 3 0
-    , entry 3 4
-    , entry 3 8
-    , entry 3 12
-    , entry 4 0
+    , entry 2 13
+    , entry 3 1
+    , entry 3 2
+    , entry 3 3
+    , entry 3 5
+    , entry 3 9
+    , entry 3 11
+    , entry 3 13
     , entry 4 1
-    , entry 4 2
-    , entry 4 4
     , entry 4 5
-    , entry 4 6
-    , entry 4 8
-    , entry 4 12
+    , entry 4 9
+    , entry 4 13
+    , entry 5 1
+    , entry 5 2
+    , entry 5 3
+    , entry 5 5
+    , entry 5 6
+    , entry 5 7
+    , entry 5 9
+    , entry 5 13
     ]
 
 
@@ -328,12 +331,12 @@ insertOneCell : List (List Heatmap.Cell) -> List (List Heatmap.Cell)
 insertOneCell matrix =
     let
         aNumber =
-            (List.length matrix * 3) % 10
+            (List.length matrix * 3) % 15
 
         newCell : Heatmap.Cell
         newCell =
             { value = toFloat <| aNumber
-            , message = "some notes " ++ toString aNumber
+            , message = "value is " ++ toString aNumber
             }
 
         lastRow : List Heatmap.Cell
