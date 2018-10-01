@@ -1,4 +1,8 @@
 # elm-package generated files
 elm-stuff
+tests/elm-stuff
+tests/Doc
 # elm-repl generated files
 repl-temp-*
+# other
+.idea

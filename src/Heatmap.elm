@@ -6,6 +6,7 @@ module Heatmap
         , DataWithPosition
         , Msg
         , State
+        , colorSchemeInit
         , config
         , state
         , update
@@ -14,8 +15,6 @@ module Heatmap
         , withColumnLabels
         , withDarken
         , withHoverMessage
-        , withPadding
-        , withRange
         , withRowLabels
         )
 
@@ -34,7 +33,7 @@ The view is done in pure HTML and CSS and is configured to scale seamlessly (all
 
 # Configuration options
 
-@docs config, withDarken, withHoverMessage, withPadding, withRange, withRowLabels, withColumnLabels
+@docs config, colorSchemeInit, withDarken, withHoverMessage, withRowLabels, withColumnLabels
 
 
 # State
@@ -59,6 +58,7 @@ import Dict
 import Html
 import Html.Attributes
 import Html.Events
+import Internal.Color
 import Json.Encode
 
 
@@ -81,9 +81,7 @@ type alias State =
 type alias ConfigInternal data =
     { toCell : data -> Cell
     , id : String
-    , colorScheme : Array.Array Color.Color
-    , padding : EmptyCell
-    , range : Maybe ValueRange
+    , colorScheme : Internal.Color.Scheme
     , columnLabels : Maybe (List String)
     , rowLabels : Maybe (List String)
     , message : Bool
@@ -114,29 +112,9 @@ type alias CellWithPosition =
     }
 
 
-{-| Is a placehodler for a missing `Cell` in the Heatmap.
--}
-type alias EmptyCell =
-    { message : String
-    , color : Color.Color
-    }
+{-| Holds the internal representation of the Heatmap with empty values.
 
-
-{-| Is an optional range of values for the `Cell` values to be colored according to.
-
-`Cell`s with value larger than `upper` are colored with the color assigned to the upper value, and likewise `Cell`s with
-value smaller than `lower` are colored with the color assigned to the lower value.
-
--}
-type alias ValueRange =
-    { lower : Float
-    , upper : Float
-    }
-
-
-{-| Holds the internap representation of the Heatmap with empty values.
-
-Entries equals to `Nothing` are drawn on the Heatmap according to `config.padding` (see `withPadding`).
+Entries equals to `Nothing` are drawn on the Heatmap according to the value stored in `colorScheme.empty`.
 
 -}
 type alias CellMatrix =
@@ -168,6 +146,29 @@ type
     | OnLeave
 
 
+{-| Creates a color scheme for the Heatmap.
+-}
+colorSchemeInit :
+    { float : List ( Float, Color.Color )
+    , nan : Color.Color
+    , empty : Color.Color
+    }
+    -> Internal.Color.Scheme
+colorSchemeInit { float, nan, empty } =
+    let
+        noDupsSortedList =
+            float
+                |> Dict.fromList
+                |> Dict.toList
+                |> List.sortBy Tuple.first
+                |> Array.fromList
+    in
+    { float = noDupsSortedList
+    , nan = nan
+    , empty = empty
+    }
+
+
 {-| Creates the `Config` for a Heatmap. This takes:
 
   - `toCell`: A function converting the data to a Heatmap `Cell`
@@ -179,9 +180,10 @@ type
 ```
 Heatmap.config { toCell = identity
              , id = "a-nice-heatmap"
-             , colorScheme = Array.fromList [ Color.rgb 255 0 0
-                                         , Color.rgb 255 255 255
-                                         ]
+             , colorScheme = { float : Array.fromList [(0, Color.blue), (4, Color.white)]
+                             , nan : Color.red
+                             , empty : Color.black
+                             }
              }
 ```
 
@@ -189,7 +191,7 @@ Heatmap.config { toCell = identity
 config :
     { toCell : data -> Cell
     , id : String
-    , colorScheme : Array.Array Color.Color
+    , colorScheme : Internal.Color.Scheme
     }
     -> Config data
 config { toCell, id, colorScheme } =
@@ -197,8 +199,6 @@ config { toCell, id, colorScheme } =
         { toCell = toCell
         , id = id
         , colorScheme = colorScheme
-        , padding = { color = Color.black, message = "" }
-        , range = Nothing
         , columnLabels = Nothing
         , rowLabels = Nothing
         , message = False
@@ -228,23 +228,6 @@ withRowLabels rowLabels (Config configInternal) =
         { configInternal | rowLabels = Just rowLabels }
 
 
-{-| Allows to specify an optional range for the Cell values.
-
-If set, the colors are adapted to fit the range as opposed to fitting the minimum and maximum value of the data set:
-`Cell`s with value larger than `upper` are colored with the color assigned to the upper value, and likewise `Cell`s
-with value smaller than `lower` are colored with the color assigned to the lower value.
-
-    Heatmap.withRange (0, 100) heatmapConfig
-
--}
-withRange : ( Float, Float ) -> Config data -> Config data
-withRange ( min, max ) (Config configInternal) =
-    Config
-        { configInternal
-            | range = Just { lower = min, upper = max }
-        }
-
-
 {-| Adds the responsive behavior of the `Cell`s of showing their `message` on hover as a tooltip.
 
     Heatmap.withHoverMessage heatmapConfig
@@ -265,17 +248,6 @@ withDarken : Config data -> Config data
 withDarken (Config configInternal) =
     Config
         { configInternal | darken = True }
-
-
-{-| Sets a custom color and message for the missing `Cell`s of the heatmap. The default values are (black, "").
-
-    Heatmap.withPadding (Color.red, "no data available.") heatmapConfig
-
--}
-withPadding : ( Color.Color, String ) -> Config data -> Config data
-withPadding ( color, message ) (Config configInternal) =
-    Config
-        { configInternal | padding = { color = color, message = message } }
 
 
 {-| Creates an intial (empty) `State`.
@@ -323,26 +295,11 @@ length (the length of the longest row).
 
 -}
 view : Config data -> State -> List (List data) -> Html.Html Msg
-view ((Config { toCell, id, colorScheme, range }) as config) state data =
+view ((Config { toCell, id, colorScheme }) as config) state data =
     let
         cellMatrix =
             data
                 |> List.map (List.map toCell)
-
-        ( minValue, maxValue ) =
-            case range of
-                Just rng ->
-                    ( rng.lower, rng.upper )
-
-                Nothing ->
-                    cellMatrix
-                        |> List.foldr (++) []
-                        |> List.map .value
-                        |> (\list ->
-                                ( Maybe.withDefault 0 (List.minimum list)
-                                , Maybe.withDefault 0 (List.maximum list)
-                                )
-                           )
 
         maxRowLength =
             cellMatrix
@@ -366,55 +323,34 @@ view ((Config { toCell, id, colorScheme, range }) as config) state data =
                     )
 
         colorFunction =
-            colorScale colorScheme minValue maxValue
+            Internal.Color.get colorScheme
     in
     Html.div [ Html.Attributes.id id, Html.Attributes.style [ ( "width", "100%" ), ( "height", "100%" ) ] ]
         [ drawCells paddedCellMatrix config colorFunction state
         ]
 
 
-{-| Takes a `Config`, a `State` and a `List (Int, Int, data)` and turns it into an HTML based Heatmap.
+{-| Takes a `Config`, a `State`, a `List (Int, Int, data)` and an optional size as `(Int, Int)` and turns it into an HTML based Heatmap.
 
 The sparse data is given as a list of (row index, column index, data). In case of conflict in (row, column),
 an arbitrary conflicting item will be taken for that (row, column).
 
+If the size is specified, the data is clipped to fit that size.
+
 The Heatmap will have row count corresponding to the maximum row value in the list, column count corresponding
-to the maximum column value in the list, and the missing values will be rendered as padding cells (see
-`withPadding`).
+to the maximum column value in the list, and the missing values will be rendered as empty cells (see
+`colorScheme.empty`). The rest of the cells will be colored according to the colorScheme (including NaN values which
+are given the color specified in `colorScheme.nan`).
 
     Html.map HeatmapMsg (Heatmap.viewSparse heatmapConfig model.heatmapState model.sparsePositionedCells)
 
 -}
-viewSparse : Config data -> State -> List (DataWithPosition data) -> Html.Html Msg
-viewSparse ((Config { toCell, id, colorScheme, range }) as config) state data =
+viewSparse : Config data -> State -> List (DataWithPosition data) -> Maybe ( Int, Int ) -> Html.Html Msg
+viewSparse ((Config { toCell, id, colorScheme }) as config) state data maybeSize =
     let
-        dataZeroBased : List (DataWithPosition data)
-        dataZeroBased =
-            let
-                rowOffset =
-                    data
-                        |> List.map .row
-                        |> List.minimum
-                        |> Maybe.withDefault 0
-
-                colOffset =
-                    data
-                        |> List.map .column
-                        |> List.minimum
-                        |> Maybe.withDefault 0
-            in
-            data
-                |> List.map
-                    (\dataWithPos ->
-                        { row = dataWithPos.row - rowOffset
-                        , column = dataWithPos.column - colOffset
-                        , data = dataWithPos.data
-                        }
-                    )
-
         positionedCellList : List CellWithPosition
         positionedCellList =
-            dataZeroBased
+            data
                 |> List.map
                     (\dataWithPos ->
                         { row = dataWithPos.row
@@ -423,35 +359,24 @@ viewSparse ((Config { toCell, id, colorScheme, range }) as config) state data =
                         }
                     )
 
-        ( minValue, maxValue ) =
-            case range of
-                Just rng ->
-                    ( rng.lower, rng.upper )
+        ( maxRowLength, maxColLength ) =
+            case maybeSize of
+                Just ( wid, hei ) ->
+                    ( wid, hei )
 
                 Nothing ->
-                    positionedCellList
-                        |> List.map .cell
-                        |> List.map .value
-                        |> (\list ->
-                                ( Maybe.withDefault 0 (List.minimum list)
-                                , Maybe.withDefault 0 (List.maximum list)
-                                )
-                           )
-
-        maxRowLength =
-            dataZeroBased
-                |> List.map (\dataWP -> dataWP.row + 1)
-                |> List.maximum
-                |> Maybe.withDefault 1
-
-        maxColLength =
-            dataZeroBased
-                |> List.map (\dataWP -> dataWP.column + 1)
-                |> List.maximum
-                |> Maybe.withDefault 1
+                    ( data
+                        |> List.map (\d -> d.row + 1)
+                        |> List.maximum
+                        |> Maybe.withDefault 1
+                    , data
+                        |> List.map (\dataWP -> dataWP.column + 1)
+                        |> List.maximum
+                        |> Maybe.withDefault 1
+                    )
 
         colorFunction =
-            colorScale colorScheme minValue maxValue
+            Internal.Color.get colorScheme
 
         paddedCellMatrix =
             let
@@ -486,7 +411,7 @@ rest consists in the colored `Cell`s. The rows in the `CellMatrix` all have the 
 
 -}
 drawCells : CellMatrix -> Config data -> (Float -> Color) -> State -> Html.Html Msg
-drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, padding }) colorFunction state =
+drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, colorScheme }) colorFunction state =
     let
         maxRowLength =
             cellMatrix
@@ -538,14 +463,14 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, padding
             (case state.selected of
                 Just cellWithPosition ->
                     if row == cellWithPosition.row && col == cellWithPosition.column && darken then
-                        darkenColor 0.7 color
+                        Internal.Color.darken 0.7 color
                     else
                         color
 
                 Nothing ->
                     color
             )
-                |> colorToString
+                |> Internal.Color.toStr
 
         firstRowLabels labels =
             let
@@ -565,23 +490,13 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, padding
                 (List.map yLabel labelList)
 
         paddingCell =
-            let
-                toolTip =
-                    if message then
-                        [ Html.Attributes.title padding.message ]
-                    else
-                        []
-            in
             Html.td
-                (List.append
-                    [ Html.Attributes.style
-                        [ ( "background-color", colorToString padding.color )
-                        , ( "width", cellWid )
-                        , ( "border", "2px solid black" )
-                        ]
+                [ Html.Attributes.style
+                    [ ( "background-color", Internal.Color.toStr colorScheme.empty )
+                    , ( "width", cellWid )
+                    , ( "border", "2px solid black" )
                     ]
-                    toolTip
-                )
+                ]
                 [ emptyCell ]
 
         toTableRow rowIndex cellList =
@@ -694,7 +609,7 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, padding
     in
     Html.table
         [ Html.Attributes.style
-            [ ( "background-color", "black" )
+            [ ( "background-color", "green" )
             , ( "border-collapse", "collapse" )
             , ( "width", "100%" )
             , ( "height", "100%" )
@@ -708,88 +623,3 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, padding
             ]
             rows
         ]
-
-
-{-| Computes the color corresponding to a value by interpolating linearly between the given min and max values.
-
-    import Color
-    import Array
-
-    colorScale (Array.fromList [Color.rgb 0 0 0, Color.rgb 255 255 255]) 0 1 0.5
-    --> Color.rgb 122 122 122
-
--}
-colorScale : Array.Array Color.Color -> Float -> Float -> Float -> Color
-colorScale colorScheme min max cellValue =
-    let
-        step =
-            (max - min) / (toFloat <| Array.length colorScheme)
-
-        pos =
-            (cellValue - min) / step |> floor
-
-        valueAsZeroToOne =
-            (cellValue - min) / (max - min)
-
-        nextPos =
-            Basics.min (Array.length colorScheme - 1) (pos + 1)
-
-        lastColor =
-            colorScheme
-                |> Array.toList
-                |> List.reverse
-                |> List.head
-                |> Maybe.withDefault Color.black
-
-        getColor index =
-            Array.get index colorScheme
-                |> Maybe.withDefault lastColor
-    in
-    interpolate (getColor pos) (getColor nextPos) valueAsZeroToOne
-
-
-{-| Returns the RGB description of a `Color`.
--}
-colorToString : Color -> String
-colorToString color =
-    Color.toRgb color
-        |> (\c -> "rgb(" ++ toString c.red ++ ", " ++ toString c.green ++ ", " ++ toString c.blue ++ ")")
-
-
-{-| Darkens the hue of a color by an offset between `0` and `1`.
--}
-darkenColor : Float -> Color.Color -> Color.Color
-darkenColor offset cl =
-    let
-        rgb =
-            Color.toRgb cl
-
-        dark color =
-            floor <| toFloat color * offset
-    in
-    Color.rgb (dark rgb.red) (dark rgb.green) (dark rgb.blue)
-
-
-{-| Computes the linear interpolation of two colors by a factor between `0` and `1`.
--}
-interpolate : Color.Color -> Color.Color -> Float -> Color.Color
-interpolate cl1 cl2 t =
-    let
-        linear : Float -> Float -> Float -> Float
-        linear val i1 i2 =
-            i1 + (i2 - i1) * val
-
-        i =
-            linear t
-    in
-    let
-        cl1_ =
-            Color.toRgb cl1
-
-        cl2_ =
-            Color.toRgb cl2
-    in
-    Color.rgba (round (i (toFloat cl1_.red) (toFloat cl2_.red)))
-        (round (i (toFloat cl1_.green) (toFloat cl2_.green)))
-        (round (i (toFloat cl1_.blue) (toFloat cl2_.blue)))
-        (i cl1_.alpha cl2_.alpha)

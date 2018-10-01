@@ -14,10 +14,8 @@ is unknown).
 You can configure:
 
 * the number of rows and columns,
-* the value range (adaptive or fixed) to determine the coloring,
 * labels for the columns and rows,
-* the color scheme,
-* the color and message for cells with no data,
+* the color scheme (including the colors for NaN and undefined values, respectively),
 * whether cells show a message on mouse hover and
 * whether cells get darker when hovered.
 
