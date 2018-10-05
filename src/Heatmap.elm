@@ -2,9 +2,10 @@ module Heatmap
     exposing
         ( Cell
         , CellWithPosition
+        , ColorScheme
         , Config
-        , DataWithPosition
         , Msg
+        , SparseData
         , State
         , colorSchemeInit
         , config
@@ -28,7 +29,7 @@ The view is done in pure HTML and CSS and is configured to scale seamlessly (all
 
 # Types
 
-@docs Cell, CellWithPosition, DataWithPosition, State, Config, Msg
+@docs Cell, CellWithPosition, ColorScheme, SparseData, State, Config, Msg
 
 
 # Configuration options
@@ -81,7 +82,7 @@ type alias State =
 type alias ConfigInternal data =
     { toCell : data -> Cell
     , id : String
-    , colorScheme : Internal.Color.Scheme
+    , colorScheme : ColorScheme
     , columnLabels : Maybe (List String)
     , rowLabels : Maybe (List String)
     , message : Bool
@@ -121,12 +122,21 @@ type alias CellMatrix =
     List (List (Maybe Cell))
 
 
+{-| Shadow type for the color scheme type.
+
+Always create a color scheme through `colorSchemeInit`. For more details about this type, see `Internal.Color.Scheme`.
+
+-}
+type alias ColorScheme =
+    Internal.Color.Scheme
+
+
 {-| Is a piece of `data` with its position in the heatmap.
 
 The function `config.toCell` converts it to a `CellWithPosition` upon render.
 
 -}
-type alias DataWithPosition data =
+type alias SparseData data =
     { row : Int
     , column : Int
     , data : data
@@ -146,14 +156,14 @@ type
     | OnLeave
 
 
-{-| Creates a color scheme for the Heatmap.
+{-| Creates a color scheme for the Heatmap. Always use this function to create a color scheme.
 -}
 colorSchemeInit :
     { float : List ( Float, Color.Color )
     , nan : Color.Color
     , empty : Color.Color
     }
-    -> Internal.Color.Scheme
+    -> ColorScheme
 colorSchemeInit { float, nan, empty } =
     let
         noDupsSortedList =
@@ -191,7 +201,7 @@ Heatmap.config { toCell = identity
 config :
     { toCell : data -> Cell
     , id : String
-    , colorScheme : Internal.Color.Scheme
+    , colorScheme : ColorScheme
     }
     -> Config data
 config { toCell, id, colorScheme } =
@@ -345,7 +355,7 @@ are given the color specified in `colorScheme.nan`).
     Html.map HeatmapMsg (Heatmap.viewSparse heatmapConfig model.heatmapState model.sparsePositionedCells)
 
 -}
-viewSparse : Config data -> State -> List (DataWithPosition data) -> Maybe ( Int, Int ) -> Html.Html Msg
+viewSparse : Config data -> State -> List (SparseData data) -> Maybe ( Int, Int ) -> Html.Html Msg
 viewSparse ((Config { toCell, id, colorScheme }) as config) state data maybeSize =
     let
         positionedCellList : List CellWithPosition

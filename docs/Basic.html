@@ -8570,7 +8570,7 @@ var _Parquery$elm_heatmap$Heatmap$CellWithPosition = F3(
 	function (a, b, c) {
 		return {cell: a, row: b, column: c};
 	});
-var _Parquery$elm_heatmap$Heatmap$DataWithPosition = F3(
+var _Parquery$elm_heatmap$Heatmap$SparseData = F3(
 	function (a, b, c) {
 		return {row: a, column: b, data: c};
 	});
@@ -9543,68 +9543,68 @@ var _Parquery$elm_heatmap$Basic$update = F2(
 					{sparseState: state});
 		}
 	});
-var _Parquery$elm_heatmap$Basic$sunrise = _elm_lang$core$Array$fromList(
-	{
+var _Parquery$elm_heatmap$Basic$sunrise = {
+	ctor: '::',
+	_0: {
+		ctor: '_Tuple2',
+		_0: 0,
+		_1: A3(_elm_lang$core$Color$rgb, 255, 0, 0)
+	},
+	_1: {
 		ctor: '::',
 		_0: {
 			ctor: '_Tuple2',
-			_0: 0,
-			_1: A3(_elm_lang$core$Color$rgb, 255, 0, 0)
+			_0: 5,
+			_1: A3(_elm_lang$core$Color$rgb, 255, 125, 0)
 		},
 		_1: {
 			ctor: '::',
 			_0: {
 				ctor: '_Tuple2',
-				_0: 5,
-				_1: A3(_elm_lang$core$Color$rgb, 255, 125, 0)
+				_0: 8,
+				_1: A3(_elm_lang$core$Color$rgb, 255, 125, 125)
 			},
 			_1: {
 				ctor: '::',
 				_0: {
 					ctor: '_Tuple2',
-					_0: 8,
-					_1: A3(_elm_lang$core$Color$rgb, 255, 125, 125)
+					_0: 10,
+					_1: A3(_elm_lang$core$Color$rgb, 255, 200, 125)
 				},
 				_1: {
 					ctor: '::',
 					_0: {
 						ctor: '_Tuple2',
-						_0: 10,
-						_1: A3(_elm_lang$core$Color$rgb, 255, 200, 125)
+						_0: 13,
+						_1: A3(_elm_lang$core$Color$rgb, 255, 200, 200)
 					},
 					_1: {
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: 13,
-							_1: A3(_elm_lang$core$Color$rgb, 255, 200, 200)
+							_0: 15,
+							_1: A3(_elm_lang$core$Color$rgb, 255, 255, 200)
 						},
 						_1: {
 							ctor: '::',
 							_0: {
 								ctor: '_Tuple2',
-								_0: 15,
-								_1: A3(_elm_lang$core$Color$rgb, 255, 255, 200)
+								_0: 20,
+								_1: A3(_elm_lang$core$Color$rgb, 255, 255, 255)
 							},
-							_1: {
-								ctor: '::',
-								_0: {
-									ctor: '_Tuple2',
-									_0: 20,
-									_1: A3(_elm_lang$core$Color$rgb, 255, 255, 255)
-								},
-								_1: {ctor: '[]'}
-							}
+							_1: {ctor: '[]'}
 						}
 					}
 				}
 			}
 		}
-	});
+	}
+};
 var _Parquery$elm_heatmap$Basic$initialModel = {
 	cells: _Parquery$elm_heatmap$Basic$cellMatrix,
 	sparseCells: _Parquery$elm_heatmap$Basic$sparseCellsList,
-	colorScheme: {$float: _Parquery$elm_heatmap$Basic$sunrise, empty: _elm_lang$core$Color$black, nan: _elm_lang$core$Color$black},
+	colorScheme: _Parquery$elm_heatmap$Heatmap$colorSchemeInit(
+		{$float: _Parquery$elm_heatmap$Basic$sunrise, empty: _elm_lang$core$Color$black, nan: _elm_lang$core$Color$black}),
 	text: 'You\'re not hovering anything',
 	state: _Parquery$elm_heatmap$Heatmap$state,
 	sparseState: _Parquery$elm_heatmap$Heatmap$state,
