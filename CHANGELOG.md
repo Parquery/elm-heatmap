@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.0
+
+- Renamed "DataWithPosition" to "SparseData", exposed ColorScheme type.
+
 ## 2.0.0
 
 - Changed the computation of colors, added test suite
