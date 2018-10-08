@@ -24,7 +24,7 @@ main =
 
 type alias Model =
     { cells : List (List Heatmap.Cell)
-    , sparseCells : List (Heatmap.DataWithPosition Heatmap.Cell)
+    , sparseCells : List (Heatmap.SparseData Heatmap.Cell)
     , colorScheme : Internal.Color.Scheme
     , text : String
     , state : Heatmap.State
@@ -51,24 +51,23 @@ type Msg
     | ToggleHoverMessage
 
 
-sunrise : Array.Array ( Float, Color.Color )
+sunrise : List ( Float, Color.Color )
 sunrise =
-    Array.fromList
-        [ ( 0, Color.rgb 255 0 0 )
-        , ( 5, Color.rgb 255 125 0 )
-        , ( 8, Color.rgb 255 125 125 )
-        , ( 10, Color.rgb 255 200 125 )
-        , ( 13, Color.rgb 255 200 200 )
-        , ( 15, Color.rgb 255 255 200 )
-        , ( 20, Color.rgb 255 255 255 )
-        ]
+    [ ( 0, Color.rgb 255 0 0 )
+    , ( 5, Color.rgb 255 125 0 )
+    , ( 8, Color.rgb 255 125 125 )
+    , ( 10, Color.rgb 255 200 125 )
+    , ( 13, Color.rgb 255 200 200 )
+    , ( 15, Color.rgb 255 255 200 )
+    , ( 20, Color.rgb 255 255 255 )
+    ]
 
 
 initialModel : Model
 initialModel =
     { cells = cellMatrix
     , sparseCells = sparseCellsList
-    , colorScheme = { float = sunrise, empty = Color.black, nan = Color.black }
+    , colorScheme = Heatmap.colorSchemeInit { float = sunrise, empty = Color.black, nan = Color.black }
     , text = "You're not hovering anything"
     , state = Heatmap.state
     , sparseState = Heatmap.state
@@ -281,7 +280,7 @@ cellMatrix =
             )
 
 
-sparseCellsList : List (Heatmap.DataWithPosition Heatmap.Cell)
+sparseCellsList : List (Heatmap.SparseData Heatmap.Cell)
 sparseCellsList =
     let
         entry row col =
