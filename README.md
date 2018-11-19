@@ -49,4 +49,4 @@ Contributions to the package are welcome. To contribute, you need to:
 4) push it to the fork, and
 5) make a pull request on the upstream repository and send it for review.
 
-Please run `precommit.sh` before creating a pull request.
+Please run `precommit.py` before creating a pull request.
