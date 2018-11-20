@@ -1,23 +1,10 @@
-module Heatmap
-    exposing
-        ( Cell
-        , CellWithPosition
-        , ColorScheme
-        , Config
-        , Msg
-        , SparseData
-        , State
-        , colorSchemeInit
-        , config
-        , state
-        , update
-        , view
-        , viewSparse
-        , withColumnLabels
-        , withDarken
-        , withHoverMessage
-        , withRowLabels
-        )
+module Heatmap exposing
+    ( Cell, CellWithPosition, ColorScheme, SparseData, State, Config, Msg
+    , config, colorSchemeInit, withDarken, withHoverMessage, withRowLabels, withColumnLabels
+    , state
+    , view, viewSparse
+    , update
+    )
 
 {-| HTML-based [heatmaps](https://en.wikipedia.org/wiki/Heat_map) in pure Elm.
 
@@ -61,6 +48,7 @@ import Html.Attributes
 import Html.Events
 import Internal.Color
 import Json.Encode
+
 
 
 -- CONFIG
@@ -188,13 +176,15 @@ colorSchemeInit { float, nan, empty } =
   - `colorScheme`: A color scheme (`Array` containing at least two `Color`s) for the colors displayed in the Heatmap
 
 ```
-Heatmap.config { toCell = identity
-             , id = "a-nice-heatmap"
-             , colorScheme = { float : Array.fromList [(0, Color.blue), (4, Color.white)]
-                             , nan : Color.red
-                             , empty : Color.black
-                             }
-             }
+Heatmap.config
+    { toCell = identity
+    , id = "a-nice-heatmap"
+    , colorScheme =
+        { float = Array.fromList [ ( 0, Color.blue ), ( 4, Color.white ) ]
+        , nan = Color.red
+        , empty = Color.black
+        }
+    }
 ```
 
 -}
@@ -328,6 +318,7 @@ view ((Config { toCell, id, colorScheme }) as config) state data =
                         in
                         if missingCellCount > 0 then
                             List.append cellRow <| List.repeat missingCellCount Nothing
+
                         else
                             cellRow
                     )
@@ -440,6 +431,7 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, colorSc
                 columns =
                     if columnLabels == Nothing then
                         List.length cellMatrix
+
                     else
                         1 + List.length cellMatrix
             in
@@ -457,6 +449,7 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, colorSc
                 availableWidth =
                     if rowLabels == Nothing then
                         100
+
                     else
                         90
             in
@@ -474,6 +467,7 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, colorSc
                 Just cellWithPosition ->
                     if row == cellWithPosition.row && col == cellWithPosition.column && darken then
                         Internal.Color.darken 0.7 color
+
                     else
                         color
 
@@ -487,6 +481,7 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, colorSc
                 labelList =
                     if rowLabels /= Nothing then
                         "" :: labels
+
                     else
                         labels
             in
@@ -564,6 +559,7 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, colorSc
                 toolTip =
                     if message then
                         [ Html.Attributes.title cell.message ]
+
                     else
                         []
 
@@ -572,6 +568,7 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, colorSc
                         [ Html.Events.onMouseOver (OnHover { cell = cell, row = row, column = col })
                         , Html.Events.onMouseLeave OnLeave
                         ]
+
                     else
                         []
             in

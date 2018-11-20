@@ -1,4 +1,4 @@
-module Basic exposing (..)
+module Basic exposing (Model, Msg(..), cellMatrix, checkbox, heatmapConfig, heatmapConfigSparse, initialModel, insertOneCell, main, sparseCellsList, sunrise, update, view)
 
 import Array
 import Color
@@ -8,6 +8,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Internal.Color
+
 
 
 {- Example Heatmap page. To run the example cd to the folder containing this module and run elm-reactor. -}
@@ -222,24 +223,28 @@ heatmapConfig model =
         withHover =
             if model.hoverMessage then
                 Heatmap.withHoverMessage
+
             else
                 identity
 
         withDarken =
             if model.darken then
                 Heatmap.withDarken
+
             else
                 identity
 
         withColumnLabels =
             if model.columnLabels then
                 Heatmap.withColumnLabels (List.range 1 cols |> List.map (\idx -> "col " ++ toString idx))
+
             else
                 identity
 
         withRowLabels =
             if model.rowLabels then
                 Heatmap.withRowLabels (List.range 1 rows |> List.map (\idx -> "row " ++ toString idx))
+
             else
                 identity
     in
@@ -347,6 +352,7 @@ insertOneCell matrix =
     in
     if List.length lastRow == 8 then
         List.append matrix [ [ newCell ] ]
+
     else
         matrix
             |> List.take (List.length matrix - 1)

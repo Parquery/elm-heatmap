@@ -1,11 +1,10 @@
-module Internal.Color
-    exposing
-        ( Scheme
-        , darken
-        , get
-        , lessEqualBinSearch
-        , toStr
-        )
+module Internal.Color exposing
+    ( Scheme
+    , darken
+    , get
+    , lessEqualBinSearch
+    , toStr
+    )
 
 import Array
 import Color
@@ -68,6 +67,7 @@ get : Scheme -> Float -> Color.Color
 get colorScheme cellValue =
     if isNaN cellValue then
         colorScheme.nan
+
     else
         let
             floats =
@@ -167,12 +167,16 @@ lessEqualBinSearch listOfNumbers searchValue =
     in
     if isNaN searchValue then
         -1
+
     else if len == 0 then
         -2
+
     else if searchValue > last then
         len - 1
+
     else if searchValue <= first then
         0
+
     else
         recursiveLEBinSrc listOfNumbers searchValue 0 (len - 1) len
 
@@ -181,6 +185,7 @@ recursiveLEBinSrc : Array.Array Float -> Float -> Int -> Int -> Int -> Int
 recursiveLEBinSrc listOfNumbers searchValue lo hi len =
     if lo > hi then
         -1
+
     else
         let
             mid =
@@ -202,15 +207,19 @@ recursiveLEBinSrc listOfNumbers searchValue lo hi len =
                         if searchValue < value then
                             if prev <= searchValue then
                                 mid
+
                             else
                                 recursiveLEBinSrc listOfNumbers searchValue lo (mid - 1) len
+
                         else if searchValue > value then
                             recursiveLEBinSrc listOfNumbers searchValue (mid + 1) hi len
+
                         else
                             mid
 
                     Nothing ->
                         if searchValue > value then
                             mid + 1
+
                         else
                             mid
