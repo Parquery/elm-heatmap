@@ -6,11 +6,14 @@ module Internal.Color exposing
     , toStr
     )
 
+{-| Provides functions and data types for colors.
+-}
+
 import Array
 import Color
 
 
-{-| A color scheme for the Heatmap.
+{-| Defines a color scheme for the Heatmap.
 
 The "float" entry contains a list of (floating-point value, color) tuples sorted by floating-point value. A floating
 point value X in the heatmap is assigned the color of the smallest element Y in the list such that X <= Y, unless X is
@@ -129,9 +132,15 @@ darken offset cl =
     Color.rgb (dark rgb.red) (dark rgb.green) (dark rgb.blue)
 
 
-{-| Binary searches, in a sorted list of numbers, the index corresponding to the smallest value larger or equal than
-the input. If the input is larger than the largest element in the list, it returns the index of the last element in
-the list. If the input is NaN, it returns -1. If the list is empty, it returns -2.
+{-| Performs a binary search in a sorted list of numbers.
+
+It searches for the index corresponding to the smallest value larger or equal than the input.
+
+  - If the input is larger than the largest element in the list, it returns the index of the last element in the list.
+
+  - If the input is NaN, it returns -1.
+
+  - If the list is empty, it returns -2.
 
     import Array
 
@@ -181,6 +190,14 @@ lessEqualBinSearch listOfNumbers searchValue =
         recursiveLEBinSrc listOfNumbers searchValue 0 (len - 1) len
 
 
+{-| Performs a recursive binary search.
+
+It searches for the index corresponding to
+the smallest value larger or equal than the input. It is guaranteed to return a
+valid index of the list, as the caller of this function deals with corner cases
+before calling it.
+
+-}
 recursiveLEBinSrc : Array.Array Float -> Float -> Int -> Int -> Int -> Int
 recursiveLEBinSrc listOfNumbers searchValue lo hi len =
     if lo > hi then

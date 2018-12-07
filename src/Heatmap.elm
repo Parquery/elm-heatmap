@@ -50,10 +50,6 @@ import Internal.Color
 import Json.Encode
 
 
-
--- CONFIG
-
-
 {-| Is an opaque type holding the configuration.
 -}
 type Config data
@@ -67,6 +63,17 @@ type alias State =
     }
 
 
+{-| Stores the configuration of the Heatmap.
+
+  - ´toCell´ -- the function translating data to a Cell
+  - ´id´ -- the unique identifier of this Heatmap;
+  - ´colorScheme´ -- the colors used for this Heatmap;
+  - ´columnLabels´ -- the optional X axis labels;
+  - ´rowLabels´ -- the optional Y axis labels.
+  - ´message´ -- if True, Cells show a message when hovered.
+  - ´darken´ -- if True, the Cells color gets slightly darker when hovered.
+
+-}
 type alias ConfigInternal data =
     { toCell : data -> Cell
     , id : String
@@ -110,7 +117,7 @@ type alias CellMatrix =
     List (List (Maybe Cell))
 
 
-{-| Shadow type for the color scheme type.
+{-| Is a shadow type for the color scheme type.
 
 Always create a color scheme through `colorSchemeInit`. For more details about this type, see `Internal.Color.Scheme`.
 
@@ -138,9 +145,9 @@ While in most cases you would simply route "down" a Heatmap `Msg`, it is exporte
 -}
 type
     Msg
-    -- when a Cell is hovered by the mouse
+    -- When a Cell is hovered by the mouse.
     = OnHover CellWithPosition
-      -- when the mouse leaves a Cell
+      -- When the mouse leaves a Cell.
     | OnLeave
 
 
@@ -167,13 +174,11 @@ colorSchemeInit { float, nan, empty } =
     }
 
 
-{-| Creates the `Config` for a Heatmap. This takes:
+{-| Creates the `Config` for a Heatmap.
 
-  - `toCell`: A function converting the data to a Heatmap `Cell`
-
-  - `id`: A unique identifier for the Html div containing the table
-
-  - `colorScheme`: A color scheme (`Array` containing at least two `Color`s) for the colors displayed in the Heatmap
+  - ´toCell´ -- A function converting the data to a Heatmap `Cell`
+  - ´id´ -- A unique identifier for the Html div containing the table
+  - ´colorScheme´ -- A color scheme (`Array` containing at least two `Color`s) for the colors displayed in the Heatmap
 
 ```
 Heatmap.config
@@ -258,10 +263,6 @@ state =
     }
 
 
-
---UPDATE
-
-
 {-| Updates the component `State`.
 
     HeatmapMsg subMsg ->
@@ -280,10 +281,6 @@ update msg state =
 
         OnLeave ->
             { state | selected = Nothing }
-
-
-
--- VIEW
 
 
 {-| Takes a `Config`, a `State` and a `List (List data)` and turns it into an HTML based Heatmap.
@@ -420,7 +417,7 @@ drawCells cellMatrix (Config { message, darken, rowLabels, columnLabels, colorSc
                 |> List.maximum
                 |> Maybe.withDefault 1
 
-        -- standard placeholder for empty HTML table entry
+        -- Standard placeholder for empty HTML table entry.
         emptyCell =
             Html.div [ Html.Attributes.style [ ( "height", "1px" ) ] ]
                 [ Html.span [ Html.Attributes.property "innerHTML" (Json.Encode.string "&nbsp;") ] []

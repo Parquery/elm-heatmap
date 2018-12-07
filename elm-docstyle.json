@@ -1,0 +1,4 @@
+{
+  "excludedChecks": ["NotAnnotatedArgument"],
+  "excludedPaths": ["examples", "tests"]
+}

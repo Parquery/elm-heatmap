@@ -14,6 +14,8 @@ def main() -> None:
         raise FileNotFoundError("elm-format (https://github.com/avh4/elm-format) not found.")
     if subprocess.call(['which', 'elm-analyse'], stdout=subprocess.DEVNULL) != 0:
         raise FileNotFoundError("elm-analyse (https://stil4m.github.io/elm-analyse/) not found.")
+    if subprocess.call(['which', 'elm-docstyle'], stdout=subprocess.DEVNULL) != 0:
+        raise FileNotFoundError("elm-docstyle (https://www.npmjs.com/package/elm-docstyle) not found.")
     if subprocess.call(['which', 'elm-doc-test'], stdout=subprocess.DEVNULL) != 0:
         raise FileNotFoundError("elm-doc-test (https://www.npmjs.com/package/elm-doc-test) not found.")
     if subprocess.call(['which', 'elm-test'], stdout=subprocess.DEVNULL) != 0:
@@ -24,6 +26,11 @@ def main() -> None:
 
     print("elm-analyse'ing...")
     subprocess.check_call(['elm-analyse'], cwd=root_dir.as_posix())
+
+    print("elm-docstyle'ing...")
+    subprocess.check_call(['elm-docstyle', '.',
+                          '--config_path', 'elm-docstyle.json',
+                          '--check_all'], cwd=root_dir.as_posix())
 
     print("elm-doc-test generating...")
     subprocess.check_call(['elm-doc-test'], cwd=root_dir.as_posix())
